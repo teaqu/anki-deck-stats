@@ -1,4 +1,4 @@
-# Author: Calumks <calumks@gmail.com>
+# Author: C9HDN
 
 # Get DeckBrowser class
 from aqt.deckbrowser import DeckBrowser
