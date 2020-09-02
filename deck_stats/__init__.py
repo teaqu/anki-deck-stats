@@ -1,29 +1,21 @@
 from aqt.deckbrowser import DeckBrowser
-from anki.utils import fmtTimeSpan
+from anki.lang import _
+from anki.hooks import wrap
 
 # Replace _renderStats method
 def renderStats(self):
     # Get data from deck tree
     due = new = 0
-    for tree in self.mw.col.sched.deckDueTree():
-        due += tree[2] + tree[3]
-        new += tree[4]
-
-    # Get studdied cards
-    cards, thetime = self.mw.col.db.first(
-        """select count(), sum(time)/1000 from revlog where id > ?""",
-        (self.mw.col.sched.dayCutoff - 86400) * 1000)
-    cards = cards or 0
-    thetime = thetime or 0
+    nodes = self.mw.col.sched.deck_due_tree().children
+    for node in nodes:
+        due += node.review_count + node.learn_count
+        new += node.new_count
 
     # Setup data to print
-    msgp1 = ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-    buf = _("Due") + ": <font color=#0a0> %(c)s </font>" % dict(c=due) \
+    return _("Due") + ": <font color=#0a0> %(c)s </font>" % dict(c=due) \
         + _("New") + ": <font color=#00a> %(d)s </font> " % dict(d=new) \
         + "<br /> " \
-        + _("Studied %(a)s in %(b)s today.") \
-        % dict(a=msgp1, b=fmtTimeSpan(thetime, unit=1))
+        + _renderStats(self)
 
-    return buf
-
+_renderStats = DeckBrowser._renderStats
 DeckBrowser._renderStats = renderStats
