@@ -1,21 +1,21 @@
 from aqt.deckbrowser import DeckBrowser
 from anki.lang import _
 from anki.hooks import wrap
+from aqt import mw
 
 # Replace _renderStats method
-def renderStats(self):
-    # Get data from deck tree
-    due = new = 0
-    nodes = self.mw.col.sched.deck_due_tree().children
-    for node in nodes:
-        due += node.review_count + node.learn_count
-        new += node.new_count
+def renderStats(self, _old):
+    # Count number of cards that match each search term
+    query = mw.col.build_search_string("is:due")
+    due = len(mw.col.find_cards(query))
+    query = mw.col.build_search_string("is:new")
+    new = len(mw.col.find_cards(query))
 
     # Setup data to print
     return _("Due") + ": <font color=#0a0> %(c)s </font>" % dict(c=due) \
         + _("New") + ": <font color=#00a> %(d)s </font> " % dict(d=new) \
         + "<br /> " \
-        + _renderStats(self)
+        + _old(self)
 
-_renderStats = DeckBrowser._renderStats
-DeckBrowser._renderStats = renderStats
+DeckBrowser._renderStats = wrap(
+    DeckBrowser._renderStats, renderStats, "around")
