@@ -6,9 +6,9 @@ from aqt import mw
 # Replace _renderStats method
 def renderStats(self, _old):
     # Count number of cards that match each search term
-    query = mw.col.build_search_string("is:due")
+    query = mw.col.build_search_string("is:due -is:suspended -is:buried")
     due = len(mw.col.find_cards(query))
-    query = mw.col.build_search_string("is:new")
+    query = mw.col.build_search_string("is:new -is:suspended -is:buried")
     new = len(mw.col.find_cards(query))
 
     # Setup data to print
