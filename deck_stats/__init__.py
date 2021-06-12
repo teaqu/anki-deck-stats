@@ -6,9 +6,10 @@ from aqt import mw
 # Replace _renderStats method
 def renderStats(self, _old):
     due = new = 0
-    for tree in self.mw.col.sched.deckDueTree():
-        due += tree[2] + tree[3]
-        new += tree[4]
+    nodes = self.mw.col.sched.deck_due_tree().children
+    for node in nodes:
+        due += node.review_count + node.learn_count
+        new += node.new_count
 
     # Setup data to print
     return _("Due") + ": <font color=#0a0> %(c)s </font>" % dict(c=due) \
